@@ -10,7 +10,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Docker Compose
-        run: docker-compose up -d
+        run: docker compose up -d
       - name: Install AWS SAM CLI
         uses: aws-actions/setup-sam@v2
       - name: Validate SAM Template
@@ -29,4 +29,4 @@ jobs:
           hurl --test e2e.hurl --variable API_URL=http://localhost:3000
       - name: Tear down Docker Compose
         if: always()
-        run: docker-compose down
+        run: docker compose down
