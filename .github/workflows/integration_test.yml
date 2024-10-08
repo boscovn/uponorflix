@@ -15,6 +15,10 @@ jobs:
         uses: aws-actions/setup-sam@v2
       - name: Validate SAM Template
         run: sam validate
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
       - name: Build SAM Application
         run: sam build
       - name: Start SAM API locally
