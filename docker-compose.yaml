@@ -1,0 +1,10 @@
+services:
+  dynamodb-local:
+    image: amazon/dynamodb-local:2.5.2
+    ports:
+      - "8000:8000"
+    networks:
+      - uponorapi
+networks:
+  uponorapi:
+    driver: bridge

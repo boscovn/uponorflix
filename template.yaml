@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  MoviesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Movies
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+  GetMoviesLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/get_movies/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Timeout: 30
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MoviesTable
+      Events:
+        GetMoviesApi:
+          Type: Api
+          Properties:
+            Path: /movies
+            Method: get
+  AddOrUpdateMovieLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/add_or_update_movie/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MoviesTable
+      Events:
+        AddUpdateMovieApi:
+          Type: Api
+          Properties:
+            Path: /movies
+            Method: put
+  DeleteMovieLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/delete_movie/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MoviesTable
+      Events:
+        DeleteMovieApi:
+          Type: Api
+          Properties:
+            Path: /movies/{id}
+            Method: delete
