@@ -22,8 +22,9 @@ jobs:
           sam local start-api --docker-network uponorflix_uponorapi &
       - name: Wait for SAM API to start
         run: sleep 10 # Adjust this based on how long it takes for the API to be ready
-      - name: Run Hurl integration tests
+      - name: Install Hurl
         uses: gacts/install-hurl@v1.2.0
+      - name: Run Hurl tests
         run: |
           hurl --test e2e.hurl --variable API_URL=http://localhost:3000
       - name: Tear down Docker Compose
