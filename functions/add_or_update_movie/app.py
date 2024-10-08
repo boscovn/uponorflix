@@ -12,13 +12,31 @@ table = None
 def get_table():
     global table
     if table is None:
-        dynamodb = (
-            boto3.resource("dynamodb", endpoint_url="http://dynamodb-local:8000")
-            if os.environ.get("AWS_SAM_LOCAL")
-            else boto3.resource("dynamodb")
-        )
-        table = dynamodb.Table("Movies")
-    return table
+        if os.environ.get("AWS_SAM_LOCAL"):
+            dynamodb = boto3.resource(
+                "dynamodb", endpoint_url="http://dynamodb-local:8000"
+            )
+            table_name = "Movies"
+            existing_tables = dynamodb.meta.client.list_tables()["TableNames"]
+            if table_name not in existing_tables:
+                table = dynamodb.create_table(
+                    TableName=table_name,
+                    KeySchema=[{"AttributeName": "id", "KeyType": "HASH"}],
+                    AttributeDefinitions=[
+                        {"AttributeName": "id", "AttributeType": "S"}
+                    ],
+                    ProvisionedThroughput={
+                        "ReadCapacityUnits": 1,
+                        "WriteCapacityUnits": 1,
+                    },
+                )
+                table.meta.client.get_waiter("table_exists").wait(TableName=table_name)
+            else:
+                table = dynamodb.Table(table_name)
+        else:
+            dynamodb = boto3.resource("dynamodb")
+            table = dynamodb.Table("Movies")
+        return table
 
 
 def error_response(status_code, message):
@@ -29,23 +47,6 @@ def error_response(status_code, message):
             "Content-Type": "application/json",
         },
     }
-
-
-if os.getenv("AWS_SAM_LOCAL"):
-    dynamodb = boto3.resource("dynamodb", endpoint_url="http://dynamodb-local:8000")
-    table_name = "Movies"
-    existing_tables = dynamodb.meta.client.list_tables()["TableNames"]
-    if table_name not in existing_tables:
-        table = dynamodb.create_table(
-            TableName=table_name,
-            KeySchema=[{"AttributeName": "id", "KeyType": "HASH"}],
-            AttributeDefinitions=[{"AttributeName": "id", "AttributeType": "S"}],
-            ProvisionedThroughput={"ReadCapacityUnits": 1, "WriteCapacityUnits": 1},
-        )
-        table.meta.client.get_waiter("table_exists").wait(TableName=table_name)
-else:
-    dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table("Movies")
 
 
 def handle_add_or_update_movie(event, context, table):
