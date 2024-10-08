@@ -47,6 +47,11 @@ docker-compose up -d
 sam build && sam local start-api --docker-network uponorflix_uponorapi
 ```
 Then in another terminal run the tests:
+You need to have the [hurl](https://hurl.dev/) tool installed.
 ```bash
 hurl --test e2e.hurl --variable API_URL=http://localhost:3000
 ```
+### CI/CD
+Note that both the unit and end-to-end tests are run in workflows in GitHub Actions.
+You can see the results in the Actions tab of this repository.
+As of now there is no deployment workflow, but it could be easily added with the `sam deploy` command.
