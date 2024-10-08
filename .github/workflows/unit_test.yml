@@ -10,9 +10,9 @@ jobs:
     strategy:
       matrix:
         function:
+          - get_movies
           - add_or_update_movie
           - delete_movie
-          - get_movies
     name: Test ${{ matrix.function }}
     steps:
       - name: Checkout repository

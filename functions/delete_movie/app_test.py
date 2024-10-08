@@ -19,6 +19,8 @@ def table():
             "dynamodb",
             endpoint_url=endpoint,
             region_name="us-west-2",
+            aws_access_key_id="anything",
+            aws_secret_access_key="anything",
         )
         table = client.create_table(
             TableName="Movies",
