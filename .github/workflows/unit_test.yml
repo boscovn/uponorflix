@@ -23,16 +23,6 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: |
-            functions/${{ matrix.function }}/venv/lib/python3.12/site-packages
-            functions/${{ matrix.function }}/venv/bin
-          key: ${{ runner.os }}-pip-${{ hashFiles('functions/' + matrix.function + '/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
       - name: Install dependencies
         run: |
           cd functions/${{ matrix.function }}
