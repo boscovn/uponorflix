@@ -1,0 +1,31 @@
+name: Integration Tests
+on:
+  push:
+    branches:
+      - master
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Docker Compose
+        run: docker-compose up -d
+      - name: Install AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+      - name: Validate SAM Template
+        run: sam validate
+      - name: Build SAM Application
+        run: sam build
+      - name: Start SAM API locally
+        run: |
+          sam local start-api --docker-network uponorflix_uponorapi &
+      - name: Wait for SAM API to start
+        run: sleep 10 # Adjust this based on how long it takes for the API to be ready
+      - name: Run Hurl integration tests
+        uses: gacts/install-hurl@v1.2.0
+        run: |
+          hurl --test e2e.hurl --variable API_URL=http://localhost:3000
+      - name: Tear down Docker Compose
+        if: always()
+        run: docker-compose down
