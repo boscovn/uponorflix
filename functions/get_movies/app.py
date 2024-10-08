@@ -6,12 +6,19 @@ import logging
 
 logger = logging.getLogger()
 
-dynamodb = (
-    boto3.resource("dynamodb", endpoint_url="http://dynamodb-local:8000")
-    if os.environ.get("AWS_SAM_LOCAL")
-    else boto3.resource("dynamodb")
-)
-table = dynamodb.Table("Movies")
+table = None
+
+
+def get_table():
+    global table
+    if table is None:
+        dynamodb = (
+            boto3.resource("dynamodb", endpoint_url="http://dynamodb-local:8000")
+            if os.environ.get("AWS_SAM_LOCAL")
+            else boto3.resource("dynamodb")
+        )
+        table = dynamodb.Table("Movies")
+    return table
 
 
 def error_response(status_code, message):
@@ -74,7 +81,7 @@ def handle_get_movies(event, context, table):
 
 def lambda_handler(event, context):
     try:
-        return handle_get_movies(event, context, table)
+        return handle_get_movies(event, context, get_table())
     except Exception as e:
         logger.error(e)
         return error_response(500, "Internal server error")

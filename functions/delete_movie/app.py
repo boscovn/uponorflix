@@ -5,11 +5,19 @@ import logging
 
 logger = logging.getLogger()
 
-if os.getenv("AWS_SAM_LOCAL"):
-    dynamodb = boto3.resource("dynamodb", endpoint_url="http://dynamodb-local:8000")
-else:
-    dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table("Movies")
+table = None
+
+
+def get_table():
+    global table
+    if table is None:
+        dynamodb = (
+            boto3.resource("dynamodb", endpoint_url="http://dynamodb-local:8000")
+            if os.environ.get("AWS_SAM_LOCAL")
+            else boto3.resource("dynamodb")
+        )
+        table = dynamodb.Table("Movies")
+    return table
 
 
 def error_response(status_code, message):
@@ -30,7 +38,7 @@ def handle_delete_movie(event, context, table):
 
 def lambda_handler(event, context):
     try:
-        return handle_delete_movie(event, context, table)
+        return handle_delete_movie(event, context, get_table())
     except Exception as e:
         logger.error(
             f"An error occurred: {str(e)} with event: {event} and context: {context}"
