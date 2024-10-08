@@ -18,6 +18,7 @@ def table():
         client = boto3.resource(
             "dynamodb",
             endpoint_url=endpoint,
+            region_name="us-west-2",
         )
         table = client.create_table(
             TableName="Movies",
