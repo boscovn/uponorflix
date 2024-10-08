@@ -14,6 +14,31 @@ The functions are deployed using a SAM template in the template.yaml file, which
 CloudFormation.
 The template also defines a DynamoDB table to store the movies.
 
+## Get movies
+The `get-movies` function returns a list of movies.
+It is invoked with a GET request to the /movies endpoint.
+It accepts the following query parameters:
+- `genre`: filters the movies by genre
+- `year_start`: filters the movies by the year they were released, defaults to 0
+- `year_end`: filters the movies by the year they were released, defaults to 3000
+- `limit`: limits the number of movies returned, defaults to 10. It must be a positive integer less than 100.
+- `start_key`: used to paginate the results, it is returned in the response and should be passed in the next request.
+
+## Add or update movie
+The `add-or-update-movie` function adds a new movie or updates an existing one.
+It is invoked with a PUT request to the /movies endpoint.
+The body of the request must be a JSON object with the following fields:
+- `title`: the title of the movie
+- `genre`: the genre of the movie
+- `year`: the year the movie was released
+- `id`: the id of the movie, if it is not provided a new id is generated
+
+## Delete movie
+The `delete-movie` function deletes a movie.
+It is invoked with a DELETE request to the /movies/{id} endpoint.
+The id of the movie to delete must be passed in the URL.
+
+
 ## Deployment
 
 To deploy the stack, it is a requirement to have the AWS CLI installed and configured with
@@ -46,11 +71,14 @@ To test the whole stack, run the following command:
 docker-compose up -d
 sam build && sam local start-api --docker-network uponorflix_uponorapi
 ```
-Then in another terminal run the tests:
-You need to have the [hurl](https://hurl.dev/) tool installed.
+Then in another terminal run the tests.
+You need to have [hurl](https://hurl.dev/) installed.
+Run the following command:
 ```bash
 hurl --test e2e.hurl --variable API_URL=http://localhost:3000
 ```
+Note that you can change the API_URL variable to test against a different environment, but the tests will fail if there are already movies in the database.
+
 ### CI/CD
 Note that both the unit and end-to-end tests are run in workflows in GitHub Actions.
 You can see the results in the Actions tab of this repository.
