@@ -35,4 +35,4 @@ jobs:
         run: |
           cd functions/${{ matrix.function }}
           source venv/bin/activate
-          pytest app_test.py
+          pytest
