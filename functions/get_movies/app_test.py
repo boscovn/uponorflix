@@ -1,4 +1,4 @@
-from app import handle_get_movies
+from app import handle_get_movies, lambda_handler
 import pytest
 import simplejson as json
 from unittest.mock import MagicMock, patch
@@ -153,3 +153,27 @@ def test_get_movies_key_pagination(table):
     assert response["statusCode"] == 200
     assert len(body["movies"]) == 1
     assert body["movies"][0]["title"] != title
+
+
+@patch("app.handle_get_movies")
+@patch("app.table")
+@patch("app.logger")
+def test_lambda_handler(mock_logger, mock_table, mock_handle_get_movies):
+    _ = mock_table
+    mock_handle_get_movies.return_value = 5000
+    response = lambda_handler(MagicMock(), MagicMock())
+    assert response == 5000
+    mock_logger.error.assert_not_called()
+    mock_handle_get_movies.assert_called_once()
+
+
+@patch("app.handle_get_movies")
+@patch("app.table")
+@patch("app.logger")
+def test_lambda_handler_fail(mock_logger, mock_table, mock_handle_get_movies):
+    _ = mock_table
+    mock_handle_get_movies.side_effect = Exception("An error occurred")
+    response = lambda_handler(MagicMock(), MagicMock())
+    assert response["statusCode"] == 500
+    mock_logger.error.assert_called_once()
+    mock_handle_get_movies.assert_called_once()

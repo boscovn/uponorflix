@@ -63,5 +63,7 @@ def lambda_handler(event, context):
     try:
         return handle_add_or_update_movie(event, context, table)
     except Exception as e:
-        logger.error(e)
+        logger.error(
+            f"An error occurred: {str(e)} with event: {event} and context: {context}"
+        )
         return error_response(500, "An error occurred")

@@ -23,6 +23,8 @@ sam deploy --guided
 ```
 
 ## Testing
+
+### Unit testing
 Each function has its own tests.
 To test a function go to its directory, install the dependencies and run the tests.
 ```bash
@@ -48,9 +50,3 @@ Then in another terminal run the tests:
 ```bash
 hurl --test e2e.hurl --variable API_URL=http://localhost:3000
 ```
-
-
-
-
-
-

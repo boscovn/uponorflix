@@ -163,3 +163,27 @@ def test_table_failure():
     }
     response = handle_add_or_update_movie(event, None, table)
     assert response["statusCode"] == 500
+
+
+@patch("app.handle_add_or_update_movie")
+@patch("app.table")
+@patch("app.logger")
+def test_lambda_handler(mock_logger, mock_table, mock_handle_add_or_update_movie):
+    _ = mock_table
+    mock_handle_add_or_update_movie.return_value = 5000
+    response = lambda_handler(MagicMock(), MagicMock())
+    assert response == 5000
+    mock_logger.error.assert_not_called()
+    mock_handle_add_or_update_movie.assert_called_once()
+
+
+@patch("app.handle_add_or_update_movie")
+@patch("app.table")
+@patch("app.logger")
+def test_lambda_handler_fail(mock_logger, mock_table, mock_handle_add_or_update_movie):
+    _ = mock_table
+    mock_handle_add_or_update_movie.side_effect = Exception("An error occurred")
+    response = lambda_handler(MagicMock(), MagicMock())
+    assert response["statusCode"] == 500
+    mock_logger.error.assert_called_once()
+    mock_handle_add_or_update_movie.assert_called_once()

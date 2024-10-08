@@ -1,0 +1,50 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        function:
+          - add_or_update_movie
+          - delete_movie
+          - get_movies
+    name: Test ${{ matrix.function }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: |
+            functions/${{ matrix.function }}/venv/lib/python3.12/site-packages
+            functions/${{ matrix.function }}/venv/bin
+          key: ${{ runner.os }}-pip-${{ hashFiles('functions/' + matrix.function + '/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          cd functions/${{ matrix.function }}
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run pytest
+        run: |
+          cd functions/${{ matrix.function }}
+          source venv/bin/activate
+          pytest app_test.py
