@@ -36,7 +36,7 @@ def get_table():
         else:
             dynamodb = boto3.resource("dynamodb")
             table = dynamodb.Table("Movies")
-        return table
+    return table
 
 
 def error_response(status_code, message):
