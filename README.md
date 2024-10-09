@@ -62,7 +62,7 @@ pytest
 Do the same for the other functions, 
 remember to deactivate the virtual environment before activating a new one.
 
-Instead of mocking the DynamoDB database, I use a real one with the [test containers](https://testcontainers.org/) library.
+Instead of mocking the DynamoDB database, I instantiate one with the [test containers](https://testcontainers.org/) library.
 So having Docker installed is a requirement to run the tests.
 
 ### End-to-end testing
@@ -82,4 +82,41 @@ Note that you can change the API_URL variable to test against a different enviro
 ### CI/CD
 Note that both the unit and end-to-end tests are run in workflows in GitHub Actions.
 You can see the results in the Actions tab of this repository.
-As of now there is no deployment workflow, but it could be easily added with the `sam deploy` command.
+As of now there is no deployment workflow, but it could be easily added with the `sam deploy` command, and the necessary secrets.
+
+
+## Additional considerations
+
+### Security
+Due to time constraints, I didn't implement any security measures. The endpoints need to be protected, at the very least those that modify the database. (add-or-update-movie and delete-movie).
+A more granular approach would be to protect all the endponts with different roles.
+I have experienced setting up cognito with API Gateway and Lambda in the AWS console after deploying the stack to my personal account, but I could't manage to make it work with SAM.
+
+### Error handling
+I have added some error handling in the functions, but it could be improved.
+I have also added some tests to check that the functions return the correct status code and error message.
+
+### Logging
+I mainly log errors exclusively. More verbose logging could be added to help with debugging as well as cloudwatch logs with the appropriate alerts.
+
+### Movie posters
+As of now there are no movie posters, but they could be added to the database as a URL to an S3 bucket. The method for uploading the images could be a separate lambda function that receives the image and returns the URL.
+That or modify the add-or-update-movie function to accept a base64 encoded image and upload it to S3.
+
+### More movie details
+As of now only a limited set of details are stored for each movie. More details could be added, like the director, the cast, the plot, etc, and also the possibility to add multiple genres.
+With more details, the get-movies function could accept more query parameters to filter the movies, or even a search parameter for full-text search.
+
+### More endpoints
+More endpoints could be added. As of now, the only way to get a movie is by queries for the catalog. An endpoint to get a movie by id could be added.
+The add or update movie endpoint could be split into two separate endpoints, one for adding and one for updating with different http methods, POST and PUT respectively.
+I went with the single endpoint approach to keep it simple and because it seemed that the task was asking for it.
+
+### Table Schema
+As of now, the ohly index in the table is the id. A more complex schema could be worth considering, different indexes if queying  by them is common.
+
+### GitOps
+The current workflow triggers the unit test matrix and the end-to-end tests on every push to the master branch and not on pull requests.
+Since this assignment is something only I work in and that for the sake of simplicity I have it in a public repository, workflows are only triggered by pushes to the master branch and not on pull requests.
+A more complex workflow could be implemented that triggers the tests on pull requests as well and the branching strategy could follow the environment strategy, with a development branch and a production branch, maybe even a staging branch.
+Pushes to those branches would be restricted and only allowed through pull requests. Ideally only sending pull requests to the development branch and then merging to the staging branch and then to the production branch. With a defined process for approving pull requests.
