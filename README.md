@@ -2,7 +2,7 @@
 
 This project addresses the task defined [here](task.md).
 
-I consists of a set of aws lambda functions, each with its own directory in the functions/
+It consists of a set of aws lambda functions, each with its own directory in the functions/
 directory.
 
 The functions are:
