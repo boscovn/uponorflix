@@ -113,7 +113,7 @@ The add or update movie endpoint could be split into two separate endpoints, one
 I went with the single endpoint approach to keep it simple and because it seemed that the task was asking for it.
 
 ### Table Schema
-As of now, the ohly index in the table is the id. A more complex schema could be worth considering, different indexes if queying  by them is common.
+As of now, the only index in the table is the id. A more complex schema could be worth considering, different indexes if queying  by them is common.
 
 ### GitOps
 The current workflow triggers the unit test matrix and the end-to-end tests on every push to the master branch and not on pull requests.
